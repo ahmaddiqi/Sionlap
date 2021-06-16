@@ -155,7 +155,7 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-  configTime(timezone * 3600, dst * 0, "pool.ntp.org", "time.nist.gov");
+  configTime(timezone * 3600, dst * 0, "id.pool.ntp.org", "pool.ntp.org");
 
   // Use HTTPSRedirect class to create a new TLS connection
   client = new HTTPSRedirect(httpsPort);
@@ -220,60 +220,59 @@ void loop() {
   t[3] = dht4.readTemperature();
   h[4] = dht5.readHumidity();
   t[4] = dht5.readTemperature();
-
+  float hAvg = 0;
+  float tAvg = 0; 
   for(int i = 0; i<5; i++){
   Serial.print(i);
   Serial.print("     Humidity: ");  Serial.print(h[i]);
-  Serial.print("  Temperature: ");  Serial.print(h[i]);  Serial.println(" ");
+  Serial.print("  Temperature: ");  Serial.print(t[i]);  Serial.println(" ");
+  hAvg += h[i];
+  tAvg += t[i];
   }
-
+  hAvg/=5;
+  tAvg/=5;
+  String relayStatus;
   
 
 
 
-//if (t >= 18.00 && t <= 28.00 && h >= 40.00 && h <= 60.00 )
-//{ 
-//    digitalWrite(Relay1, HIGH);
-//    digitalWrite(Relay2, LOW);
-//    digitalWrite(Relay3, LOW);
-//    Serial.println("Humidity : Normal, Temperature : Normal");
-//      }
-//else if(t >= 18.00 && t <= 28.00 && h > 60.00 )
-//{
-//    digitalWrite(Relay1,LOW); // Turns Relay Off
-//    digitalWrite(Relay2,HIGH);  // Turns ON Relays
-//    digitalWrite(Relay3,LOW);  // Turns ON Relays
-//    Serial.println("Humidity : Tinggi, Temperature : Normal");
-//   }
-//
-//else if(t >= 18.00 && t <= 28.00 && h < 40.00 )
-//{
-//    digitalWrite(Relay1,LOW); // Turns Relay Off
-//    digitalWrite(Relay2,LOW);  // Turns ON Relays
-//    digitalWrite(Relay3,HIGH);  // Turns ON Relays
-//    Serial.println("Humidity : Rendah, Temperature : Normal");
-//   }
-//else if (t > 28.00 && h >= 40.00 && h <= 60.00 )
-//{
-//    digitalWrite(Relay1,LOW); // Turns Relay Off
-//    digitalWrite(Relay2,LOW);  // Turns ON Relays
-//    digitalWrite(Relay3,HIGH);  // Turns ON Relays
-//    Serial.println("Humidity : Normal, Temperature : Panas");
-//   }
-//else if (t < 18.00 && h >= 40.00 && h <= 60.00 )
-//{
-//    digitalWrite(Relay1,LOW); // Turns Relay Off
-//    digitalWrite(Relay2,LOW);  // Turns ON Relays
-//    digitalWrite(Relay3,HIGH);  // Turns ON Relays
-//    Serial.println("Humidity : Normal, Temperature : Dingin");
-//   }
-//else if (t > 28.00 && h > 60.00 )
-//{
-//    digitalWrite(Relay1,LOW); // Turns Relay Off
-//    digitalWrite(Relay2,LOW);  // Turns ON Relays
-//    digitalWrite(Relay3,HIGH);  // Turns ON Relays
-//    Serial.println(" Humidity : Tinggi, Temperature : Panas");
-//}
+if (tAvg >= 18.00 && tAvg <= 28.00 && hAvg >= 40.00 && hAvg <= 60.00 )
+{ 
+  relayStatus = "FALSE";
+   digitalWrite(Relay1, LOW);
+   Serial.println("Humidity : Normal, Temperature : Normal");
+     }
+else if(tAvg >= 18.00 && tAvg <= 28.00 && hAvg > 60.00 )
+{
+  relayStatus = "TRUE";
+   digitalWrite(Relay1,HIGH); 
+   Serial.println("Humidity : Tinggi, Temperature : Normal");
+  }
+
+else if(tAvg >= 18.00 && tAvg <= 28.00 && hAvg < 40.00 )
+{
+  relayStatus = "FALSE";
+   digitalWrite(Relay1,LOW); 
+   Serial.println("Humidity : Rendah, Temperature : Normal");
+  }
+else if (tAvg > 28.00 && hAvg >= 40.00 && hAvg <= 60.00 )
+{
+  relayStatus = "TRUE";
+   digitalWrite(Relay1,HIGH);
+   Serial.println("Humidity : Normal, Temperature : Panas");
+  }
+else if (tAvg < 18.00 && hAvg >= 40.00 && hAvg <= 60.00 )
+{
+  relayStatus = "FALSE";
+  digitalWrite(Relay1,LOW);
+   Serial.println("Humidity : Normal, Temperature : Dingin");
+  }
+else if (tAvg > 28.00 && hAvg > 60.00 )
+{
+  relayStatus = "TRUE";
+  digitalWrite(Relay1,HIGH);
+   Serial.println(" Humidity : Tinggi, Temperature : Panas");
+}
 
 
   static int error_count = 0;
@@ -287,7 +286,7 @@ void loop() {
   String years = String(timeinfo->tm_year + 1900);
   String tanggal = String(years + "-" + (checktime(timeinfo->tm_mon+ 1)) + "-" + (checktime(timeinfo->tm_mday))); 
   String jam = String(checktime(timeinfo->tm_hour) + ":" + (checktime(timeinfo->tm_min))+ ":" + (checktime(timeinfo->tm_sec)));
-  payload = payload_base + "\""+ tanggal + " " + jam +","+ String(t[0]) + "," + String(t[1]) + "," + String(t[2]) + "," + String(t[3]) + "," +String(t[4]) + "," + String(h[0]) + "," + String(h[1]) + "," + String(h[2])+ "," + String(h[3]) + "," + String(h[4])  + "\"}";
+  payload = payload_base + "\""+ tanggal + " " + jam +","+ String(t[0]) + "," + String(t[1]) + "," + String(t[2]) + "," + String(t[3]) + "," +String(t[4]) + "," + String(h[0]) + "," + String(h[1]) + "," + String(h[2])+ "," + String(h[3]) + "," + String(h[4]) + ","  + relayStatus + "\"}";
   Serial.print("");
   Serial.println(payload);
   Serial.println("");
