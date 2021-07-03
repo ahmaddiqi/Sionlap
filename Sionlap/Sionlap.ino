@@ -231,45 +231,45 @@ void loop() {
   }
   hAvg/=5;
   tAvg/=5;
-  String relayStatus;
+  bool relayStatus;
   
 
 
 
 if (tAvg >= 18.00 && tAvg <= 28.00 && hAvg >= 40.00 && hAvg <= 60.00 )
 { 
-  relayStatus = "FALSE";
+  relayStatus = false;
    digitalWrite(Relay1, LOW);
    Serial.println("Humidity : Normal, Temperature : Normal");
      }
 else if(tAvg >= 18.00 && tAvg <= 28.00 && hAvg > 60.00 )
 {
-  relayStatus = "TRUE";
+  relayStatus = true;
    digitalWrite(Relay1,HIGH); 
    Serial.println("Humidity : Tinggi, Temperature : Normal");
   }
 
 else if(tAvg >= 18.00 && tAvg <= 28.00 && hAvg < 40.00 )
 {
-  relayStatus = "FALSE";
+  relayStatus = true;
    digitalWrite(Relay1,LOW); 
    Serial.println("Humidity : Rendah, Temperature : Normal");
   }
 else if (tAvg > 28.00 && hAvg >= 40.00 && hAvg <= 60.00 )
 {
-  relayStatus = "TRUE";
+  relayStatus = true;
    digitalWrite(Relay1,HIGH);
    Serial.println("Humidity : Normal, Temperature : Panas");
   }
 else if (tAvg < 18.00 && hAvg >= 40.00 && hAvg <= 60.00 )
 {
-  relayStatus = "FALSE";
+  relayStatus = true;
   digitalWrite(Relay1,LOW);
    Serial.println("Humidity : Normal, Temperature : Dingin");
   }
 else if (tAvg > 28.00 && hAvg > 60.00 )
 {
-  relayStatus = "TRUE";
+  relayStatus = true;
   digitalWrite(Relay1,HIGH);
    Serial.println(" Humidity : Tinggi, Temperature : Panas");
 }
@@ -286,7 +286,7 @@ else if (tAvg > 28.00 && hAvg > 60.00 )
   String years = String(timeinfo->tm_year + 1900);
   String tanggal = String(years + "-" + (checktime(timeinfo->tm_mon+ 1)) + "-" + (checktime(timeinfo->tm_mday))); 
   String jam = String(checktime(timeinfo->tm_hour) + ":" + (checktime(timeinfo->tm_min))+ ":" + (checktime(timeinfo->tm_sec)));
-  payload = payload_base + "\""+ tanggal + " " + jam +","+ String(t[0]) + "," + String(t[1]) + "," + String(t[2]) + "," + String(t[3]) + "," +String(t[4]) + "," + String(h[0]) + "," + String(h[1]) + "," + String(h[2])+ "," + String(h[3]) + "," + String(h[4]) + ","  + relayStatus + "\"}";
+  payload = payload_base + "\""+ tanggal + " " + jam +","+ String(t[0]) + "," + String(t[1]) + "," + String(t[2]) + "," + String(t[3]) + "," +String(t[4]) + "," + String(h[0]) + "," + String(h[1]) + "," + String(h[2])+ "," + String(h[3]) + "," + String(h[4]) + ","  + String(relayStatus) + "\"}";
   Serial.print("");
   Serial.println(payload);
   Serial.println("");
